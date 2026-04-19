@@ -131,3 +131,46 @@
   color: rgba(0, 0, 0, 0.45);
   font-weight: 500;
 }
+
+/* Maya Chen / Figma minimalist portfolio — image-led, no chrome */
+.artwork-card--minimal {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.artwork-card--minimal:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.artwork-card--minimal .artwork-thumbnail {
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.artwork-card--minimal .artwork-footer {
+  padding: 1rem 0 0;
+  justify-content: flex-start;
+}
+
+.artwork-card--minimal .artwork-title {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.35;
+}
+
+.artwork-minimal-category {
+  margin: 0.35rem 0 0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ig-muted-foreground, #717182);
+}

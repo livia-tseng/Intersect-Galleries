@@ -1,31 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getPortfolioPublicUrl } from '../lib/storage';
 import { useAuth } from '../context/AuthContext';
+import {
+  TEMPLATE_OPTIONS,
+  normalizePortfolioTemplate,
+} from '../lib/portfolioTemplate';
 import { categories } from '../data/mockData';
 import './Auth.css';
 import './Onboarding.css';
 
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
-
-const TEMPLATE_OPTIONS = [
-  {
-    id: 'grid',
-    name: 'Grid',
-    blurb: 'Even tiles — great for mixed disciplines.',
-  },
-  {
-    id: 'masonry',
-    name: 'Masonry',
-    blurb: 'Column flow — editorial, photography-forward.',
-  },
-  {
-    id: 'spotlight',
-    name: 'Spotlight',
-    blurb: 'Hero piece plus supporting works.',
-  },
-];
 
 function isAllowedMedia(file) {
   if (file.type.startsWith('image/')) return true;
@@ -54,7 +40,15 @@ export default function Onboarding() {
   const userId = session?.user?.id;
 
   const [step, setStep] = useState(0);
-  const [template, setTemplate] = useState(profile?.portfolio_template || 'grid');
+  const [template, setTemplate] = useState(() =>
+    normalizePortfolioTemplate(profile?.portfolio_template),
+  );
+
+  useEffect(() => {
+    if (profile?.portfolio_template != null) {
+      setTemplate(normalizePortfolioTemplate(profile.portfolio_template));
+    }
+  }, [profile?.portfolio_template]);
   const [bio, setBio] = useState(profile?.bio || '');
   const [location, setLocation] = useState(profile?.location || '');
   const [website, setWebsite] = useState(profile?.website || '');
@@ -147,10 +141,12 @@ export default function Onboarding() {
 
       const websiteClean = website.trim().replace(/^https?:\/\//i, '');
 
+      const templateForDb = normalizePortfolioTemplate(template);
+
       const { error: upProfError } = await supabase
         .from('profiles')
         .update({
-          portfolio_template: template,
+          portfolio_template: templateForDb,
           bio: bio.trim(),
           location: location.trim(),
           website: websiteClean,

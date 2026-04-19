@@ -5,6 +5,7 @@ import {
   initialsFromName,
   stringToColor,
 } from './userDisplay';
+import { normalizePortfolioTemplate } from './portfolioTemplate';
 
 export async function fetchProfileByUsername(username) {
   const u = String(username).toLowerCase().trim();
@@ -65,7 +66,7 @@ export function mapProfileRowsToViewModel(profile, items) {
     following: 0,
     artworks,
     tags,
-    portfolio_template: profile.portfolio_template,
+    portfolio_template: normalizePortfolioTemplate(profile.portfolio_template),
     onboarding_complete: profile.onboarding_complete,
     _source: 'supabase',
   };

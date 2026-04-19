@@ -13,8 +13,8 @@ create table if not exists public.profiles (
   website text not null default '',
   avatar_url text,
   cover_image_url text,
-  portfolio_template text not null default 'grid'
-    check (portfolio_template in ('grid', 'masonry', 'spotlight')),
+  portfolio_template text not null default 'minimalist'
+    check (portfolio_template in ('minimalist', 'bold', 'artsy')),
   onboarding_complete boolean not null default false,
   created_at timestamptz not null default now()
 );

@@ -2,7 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './ArtworkCard.css';
 
-export default function ArtworkCard({ artwork, artistName, username, mini }) {
+export default function ArtworkCard({
+  artwork,
+  artistName,
+  username,
+  mini,
+  /** Maya-style portfolio: no likes, no @link, category under title */
+  minimal = false,
+}) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(artwork.likes || 0);
 
@@ -21,7 +28,9 @@ export default function ArtworkCard({ artwork, artistName, username, mini }) {
   };
 
   return (
-    <div className={`artwork-card${mini ? ' artwork-card--mini' : ''}`}>
+    <div
+      className={`artwork-card${mini ? ' artwork-card--mini' : ''}${minimal ? ' artwork-card--minimal' : ''}`}
+    >
       <div
         className="artwork-thumbnail"
         style={{ background: artwork.color }}
@@ -45,28 +54,35 @@ export default function ArtworkCard({ artwork, artistName, username, mini }) {
             loading="lazy"
           />
         )}
-        <div className="artwork-overlay">
-          <span className="artwork-category">{artwork.category}</span>
-        </div>
+        {!minimal && (
+          <div className="artwork-overlay">
+            <span className="artwork-category">{artwork.category}</span>
+          </div>
+        )}
       </div>
       <div className="artwork-footer">
         <div className="artwork-meta">
           <p className="artwork-title">{artwork.title}</p>
-          {artistName && (
+          {minimal && artwork.category && (
+            <p className="artwork-minimal-category">{artwork.category}</p>
+          )}
+          {!minimal && artistName && (
             <Link to={`/profile/${username}`} className="artwork-artist" onClick={(e) => e.stopPropagation()}>
               @{username}
             </Link>
           )}
         </div>
-        <button
-          type="button"
-          className={`like-btn${liked ? ' liked' : ''}`}
-          onClick={handleLike}
-          aria-label={liked ? 'Unlike' : 'Like'}
-        >
-          <span className="like-icon">{liked ? '♥' : '♡'}</span>
-          <span className="like-count">{likeCount}</span>
-        </button>
+        {!minimal && (
+          <button
+            type="button"
+            className={`like-btn${liked ? ' liked' : ''}`}
+            onClick={handleLike}
+            aria-label={liked ? 'Unlike' : 'Like'}
+          >
+            <span className="like-icon">{liked ? '♥' : '♡'}</span>
+            <span className="like-count">{likeCount}</span>
+          </button>
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   fetchProfileByUsername,
   mapProfileRowsToViewModel,
 } from '../lib/supabaseProfiles';
+import { normalizePortfolioTemplate } from '../lib/portfolioTemplate';
 import { PortfolioWorksSection } from '../components/portfolioTemplates/PortfolioLayouts';
 import './Profile.css';
 
@@ -40,7 +41,7 @@ export default function Profile() {
             mock
               ? {
                   ...mock,
-                  portfolio_template: mock.portfolio_template || 'grid',
+                  portfolio_template: mock.portfolio_template || 'minimalist',
                   _source: 'mock',
                 }
               : null,
@@ -54,7 +55,7 @@ export default function Profile() {
             mock
               ? {
                   ...mock,
-                  portfolio_template: mock.portfolio_template || 'grid',
+                  portfolio_template: mock.portfolio_template || 'minimalist',
                   _source: 'mock',
                 }
               : null,
@@ -76,8 +77,10 @@ export default function Profile() {
     return false;
   }, [user, session?.user?.id, currentUser?.username]);
 
-  const template = user?.portfolio_template || 'grid';
+  const template = normalizePortfolioTemplate(user?.portfolio_template);
   const site = user ? websiteHref(user.website) : '';
+  const boldDiscipline =
+    user?.tags?.[0] || user?.artworks?.[0]?.category || '';
 
   if (loading) {
     return (
@@ -102,7 +105,7 @@ export default function Profile() {
   const followerCount = user.followers + (following ? 1 : 0);
 
   return (
-    <div className="profile">
+    <div className={`profile profile--tpl-${template}`}>
       <div
         className="profile-cover"
         style={{
@@ -149,7 +152,17 @@ export default function Profile() {
           </div>
           <div className="profile-meta">
             <div className="profile-name-row">
-              <h1 className="profile-name">{user.name}</h1>
+              <h1
+                className={`profile-name${template === 'bold' ? ' profile-name--bold-pdf' : ''}`}
+              >
+                {template === 'bold' ? user.name.toUpperCase() : user.name}
+                {template === 'bold' && (
+                  <span className="profile-name-period" aria-hidden>
+                    {' '}
+                    .
+                  </span>
+                )}
+              </h1>
               {isOwner ? (
                 <Link to="/onboarding" className="btn-edit">Edit portfolio</Link>
               ) : (
@@ -162,9 +175,40 @@ export default function Profile() {
                 </button>
               )}
             </div>
-            <p className="profile-username">@{user.username}</p>
-            <p className="profile-bio">{user.bio}</p>
+            {template === 'bold' ? (
+              <>
+                {(boldDiscipline || user.location) && (
+                <p className="profile-bold-kicker">
+                  {boldDiscipline && (
+                    <span className="profile-bold-kicker__discipline">
+                      {boldDiscipline.toUpperCase()}
+                    </span>
+                  )}
+                  {user.location && (
+                    <span className="profile-bold-kicker__loc">
+                      {boldDiscipline ? '\u00A0' : ''}
+                      {user.location.toUpperCase()}
+                    </span>
+                  )}
+                </p>
+                )}
+                <p className="profile-username profile-username--below-kicker">
+                  @{user.username}
+                </p>
+                <p className="profile-bio profile-bio--bold-pdf">
+                  <span className="profile-about-label">ABOUT:</span>
+                  {' '}
+                  {user.bio}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="profile-username">@{user.username}</p>
+                <p className="profile-bio">{user.bio}</p>
+              </>
+            )}
 
+            {template !== 'bold' && (
             <div className="profile-details">
               {user.location && (
                 <span className="profile-detail">
@@ -177,14 +221,32 @@ export default function Profile() {
                 </a>
               )}
             </div>
+            )}
 
+            {template === 'bold' && (user.location || user.website) && (
+            <div className="profile-details profile-details--bold-inline">
+              {user.location && (
+                <span className="profile-detail">
+                  <span className="profile-detail-label">BASED IN</span> {user.location}
+                </span>
+              )}
+              {user.website && (
+                <a href={site} target="_blank" rel="noreferrer" className="profile-detail profile-website">
+                  <span className="profile-detail-label">WEB</span> {user.website}
+                </a>
+              )}
+            </div>
+            )}
+
+            {template !== 'bold' && (
             <div className="profile-tags">
               {user.tags.map((tag) => (
                 <span key={tag} className="profile-tag">{tag}</span>
               ))}
             </div>
+            )}
 
-            <div className="profile-stats">
+            <div className={`profile-stats${template === 'bold' ? ' profile-stats--bold' : ''}`}>
               <div className="profile-stat">
                 <span className="profile-stat-value">{user.artworks.length}</span>
                 <span className="profile-stat-label">Works</span>
@@ -200,6 +262,22 @@ export default function Profile() {
             </div>
           </div>
         </div>
+        {template === 'bold' && (
+          <div className="profile-bold-footer" aria-label="Contact">
+            {user.website && (
+              <a href={site} target="_blank" rel="noreferrer" className="profile-bold-footer__cta">
+                GET IN TOUCH
+              </a>
+            )}
+            <button
+              type="button"
+              className="profile-bold-footer__cta profile-bold-footer__cta--ghost"
+              onClick={() => setActiveTab('about')}
+            >
+              ABOUT THE ARTIST
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="profile-content">

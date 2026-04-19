@@ -1,33 +1,204 @@
-.portfolio-layout--grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.25rem;
-}
-
-.portfolio-layout--masonry {
-  column-count: 3;
-  column-gap: 1.25rem;
-}
-
-.portfolio-layout__masonry-item {
-  break-inside: avoid;
-  margin-bottom: 1.25rem;
-}
-
-.portfolio-layout--spotlight {
+/* --- Minimalist: Maya Chen Figma portfolio — narrow column, lead piece, editorial type --- */
+.portfolio-layout--minimalist {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  align-items: stretch;
+  gap: 2rem;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0.5rem 0 2.5rem;
 }
 
-.portfolio-layout__spotlight-hero .artwork-card .artwork-thumbnail {
-  height: min(52vh, 420px);
+.portfolio-minimal-heading {
+  text-align: center;
+  padding: 0 0.5rem 0.25rem;
 }
 
-.portfolio-layout__spotlight-grid {
+.portfolio-minimal-heading__eyebrow {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: rgba(3, 2, 19, 0.42);
+  margin-bottom: 0.5rem;
+}
+
+.portfolio-minimal-heading__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 3.5vw, 1.75rem);
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: #030213;
+}
+
+.portfolio-layout__minimal-lead .artwork-thumbnail {
+  height: min(52vh, 520px);
+}
+
+.portfolio-layout__minimal-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+.portfolio-layout__minimal-grid .artwork-thumbnail {
+  height: min(36vw, 280px);
+}
+
+@media (min-width: 640px) {
+  .portfolio-layout__minimal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.25rem 1.75rem;
+  }
+
+  .portfolio-layout__minimal-grid .artwork-thumbnail {
+    height: 220px;
+  }
+}
+
+@media (min-width: 900px) {
+  .portfolio-layout__minimal-grid .artwork-thumbnail {
+    height: 240px;
+  }
+}
+
+/* --- Bold: USER NAME.pdf masthead + works (letter-spaced titles) --- */
+.portfolio-bold-pdf-heading {
+  margin: 0 0 0.25rem;
+  font-size: clamp(0.65rem, 1.1vw, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: #030213;
+  line-height: 1.5;
+}
+
+.portfolio-bold-pdf-heading__line {
+  display: block;
+}
+
+.portfolio-layout--bold {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.portfolio-layout--bold .artwork-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.portfolio-layout--bold .artwork-category {
+  letter-spacing: 0.12em;
+  font-size: 0.62rem;
+}
+
+.portfolio-layout__bold-accent {
+  height: 5px;
+  width: 100%;
+  background: linear-gradient(90deg, #f59e0b 0%, #f59e0b 35%, #030213 35%, #030213 100%);
+  border-radius: 1px;
+}
+
+.portfolio-layout__bold-hero .artwork-card {
+  border-radius: 0;
+  border: 3px solid #030213;
+  box-shadow: 8px 8px 0 rgba(3, 2, 19, 0.12);
+}
+
+.portfolio-layout__bold-hero .artwork-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0 rgba(3, 2, 19, 0.16);
+}
+
+.portfolio-layout__bold-hero .artwork-thumbnail {
+  height: min(58vh, 480px);
+}
+
+.portfolio-layout__bold-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.portfolio-layout__bold-grid .artwork-card {
+  border-radius: 0;
+  border: 2px solid #030213;
+}
+
+.portfolio-layout__bold-grid .artwork-thumbnail {
+  height: 160px;
+}
+
+@media (min-width: 720px) {
+  .portfolio-layout__bold-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .portfolio-layout__bold-grid .artwork-thumbnail {
+    height: 180px;
+  }
+}
+
+/* --- Artsy: 12-col mosaic with varied spans --- */
+.portfolio-layout--artsy {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.85rem;
+  align-items: stretch;
+}
+
+.portfolio-layout__artsy-cell {
+  grid-column: span 6;
+  min-width: 0;
+}
+
+.portfolio-layout__artsy-cell--wide {
+  grid-column: span 12;
+}
+
+@media (min-width: 640px) {
+  .portfolio-layout__artsy-cell {
+    grid-column: span 4;
+  }
+
+  .portfolio-layout__artsy-cell--wide {
+    grid-column: span 8;
+  }
+}
+
+@media (min-width: 900px) {
+  .portfolio-layout__artsy-cell {
+    grid-column: span 4;
+  }
+
+  .portfolio-layout__artsy-cell--wide {
+    grid-column: span 8;
+  }
+}
+
+.portfolio-layout--artsy .artwork-card {
+  border-radius: 14px 4px 14px 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-layout--artsy .portfolio-layout__artsy-cell:nth-child(odd) .artwork-card {
+  transform: rotate(-0.35deg);
+}
+
+.portfolio-layout--artsy .portfolio-layout__artsy-cell:nth-child(even) .artwork-card {
+  transform: rotate(0.35deg);
+}
+
+.portfolio-layout--artsy .artwork-card:hover {
+  transform: rotate(0deg) translateY(-2px);
 }
 
 .portfolio-layout__empty {
@@ -38,14 +209,13 @@
   padding: 1rem 0;
 }
 
-@media (max-width: 900px) {
-  .portfolio-layout--masonry {
-    column-count: 2;
-  }
-}
-
 @media (max-width: 520px) {
-  .portfolio-layout--masonry {
-    column-count: 1;
+  .portfolio-layout__minimal-lead .artwork-thumbnail {
+    height: min(48vh, 380px);
+  }
+
+  .portfolio-layout--artsy .portfolio-layout__artsy-cell,
+  .portfolio-layout--artsy .portfolio-layout__artsy-cell--wide {
+    grid-column: span 12;
   }
 }
