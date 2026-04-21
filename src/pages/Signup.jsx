@@ -83,7 +83,7 @@ export default function Signup() {
 
   if (pendingVerify) {
     return (
-      <div className="auth-page">
+      <div className="auth-page auth-page-all">
         <div className="auth-card">
           <div className="auth-logo">
             <span className="auth-logo-icon">✦</span>
@@ -103,7 +103,7 @@ export default function Signup() {
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-page-all">
       <div className="auth-card">
         <div className="auth-logo">
           <span className="auth-logo-icon">✦</span>

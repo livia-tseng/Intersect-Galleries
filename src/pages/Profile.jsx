@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { users } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +6,7 @@ import {
   deletePortfolioItemForCurrentUser,
   fetchProfileByUsername,
   mapProfileRowsToViewModel,
+  setFollowTarget,
 } from '../lib/supabaseProfiles';
 import { normalizePortfolioTemplate } from '../lib/portfolioTemplate';
 import { PortfolioWorksSection } from '../components/portfolioTemplates/PortfolioLayouts';
@@ -20,10 +21,13 @@ function websiteHref(website) {
 
 export default function Profile() {
   const { username } = useParams();
+  const navigate = useNavigate();
   const { session, currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [following, setFollowing] = useState(false);
+  const [followBusy, setFollowBusy] = useState(false);
+  const [followError, setFollowError] = useState('');
   const [activeTab, setActiveTab] = useState('works');
   const [workDeleteError, setWorkDeleteError] = useState('');
 
@@ -33,12 +37,15 @@ export default function Profile() {
       setLoading(true);
       const uname = String(username).toLowerCase().trim();
       try {
-        const row = await fetchProfileByUsername(uname);
+        const viewerId = session?.user?.id ?? null;
+        const row = await fetchProfileByUsername(uname, viewerId);
         if (cancelled) return;
         if (row) {
-          setUser(mapProfileRowsToViewModel(row.profile, row.items));
+          setUser(mapProfileRowsToViewModel(row.profile, row.items, row.stats));
+          setFollowing(row.stats?.viewerFollows ?? false);
         } else {
           const mock = users.find((u) => u.username === uname);
+          setFollowing(false);
           setUser(
             mock
               ? {
@@ -53,6 +60,7 @@ export default function Profile() {
         console.error(e);
         const mock = users.find((u) => u.username === uname);
         if (!cancelled) {
+          setFollowing(false);
           setUser(
             mock
               ? {
@@ -70,7 +78,7 @@ export default function Profile() {
     return () => {
       cancelled = true;
     };
-  }, [username]);
+  }, [username, session?.user?.id]);
 
   const isOwner = useMemo(() => {
     if (!user) return false;
@@ -78,6 +86,46 @@ export default function Profile() {
     if (user._source === 'mock' && currentUser?.username === user.username) return true;
     return false;
   }, [user, session?.user?.id, currentUser?.username]);
+
+  const handleFollowToggle = useCallback(async () => {
+    if (!user || user._source !== 'supabase') return;
+    if (isOwner) return;
+    if (!session?.user?.id) {
+      navigate('/login', { state: { from: `/profile/${user.username}` } });
+      return;
+    }
+    setFollowBusy(true);
+    setFollowError('');
+    const wasFollowing = following;
+    const prevFollowers = user.followers;
+    const next = !wasFollowing;
+    try {
+      await setFollowTarget(user.id, next);
+      setFollowing(next);
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              followers: Math.max(0, prevFollowers + (next ? 1 : -1)),
+            }
+          : prev,
+      );
+    } catch (e) {
+      setFollowing(wasFollowing);
+      setUser((prev) => (prev ? { ...prev, followers: prevFollowers } : prev));
+      const code = e?.code ?? e?.cause?.code;
+      if (
+        code === 'SIGN_IN_REQUIRED'
+        || e?.message === 'Sign in to follow creators.'
+      ) {
+        navigate('/login', { state: { from: `/profile/${user.username}` } });
+      } else {
+        setFollowError(e?.message || 'Could not update follow.');
+      }
+    } finally {
+      setFollowBusy(false);
+    }
+  }, [user, session?.user?.id, following, isOwner, navigate]);
 
   const template = normalizePortfolioTemplate(user?.portfolio_template);
   const site = user ? websiteHref(user.website) : '';
@@ -129,8 +177,6 @@ export default function Profile() {
       </div>
     );
   }
-
-  const followerCount = user.followers + (following ? 1 : 0);
 
   const onDeleteWork =
     isOwner && user._source === 'supabase' ? handleDeleteWork : undefined;
@@ -196,16 +242,26 @@ export default function Profile() {
               </h1>
               {isOwner ? (
                 <Link to="/onboarding" className="btn-edit">Edit portfolio</Link>
-              ) : (
+              ) : user._source === 'supabase' ? (
                 <button
                   type="button"
                   className={`btn-follow${following ? ' following' : ''}`}
-                  onClick={() => setFollowing(!following)}
+                  onClick={() => void handleFollowToggle()}
+                  disabled={followBusy}
                 >
-                  {following ? 'Following ✓' : 'Follow'}
+                  {followBusy ? '…' : following ? 'Following ✓' : 'Follow'}
+                </button>
+              ) : (
+                <button type="button" className="btn-follow" disabled>
+                  Follow
                 </button>
               )}
             </div>
+            {followError && (
+              <p className="profile-follow-error" role="alert">
+                {followError}
+              </p>
+            )}
             {template === 'bold' ? (
               <>
                 {(boldDiscipline || user.location) && (
@@ -283,7 +339,7 @@ export default function Profile() {
                 <span className="profile-stat-label">Works</span>
               </div>
               <div className="profile-stat">
-                <span className="profile-stat-value">{followerCount.toLocaleString()}</span>
+                <span className="profile-stat-value">{user.followers.toLocaleString()}</span>
                 <span className="profile-stat-label">Followers</span>
               </div>
               <div className="profile-stat">

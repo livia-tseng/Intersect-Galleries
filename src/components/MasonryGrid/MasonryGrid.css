@@ -1,0 +1,21 @@
+/* Flex columns + equal horizontal & vertical gaps (set via --masonry-gap) */
+.masonry-grid {
+  --masonry-gap: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--masonry-gap);
+  width: 100%;
+}
+
+.masonry-grid__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--masonry-gap);
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.masonry-grid__cell {
+  min-width: 0;
+}

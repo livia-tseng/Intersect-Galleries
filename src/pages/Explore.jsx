@@ -4,11 +4,21 @@ import { motion } from 'motion/react';
 import { users, categories } from '../data/mockData';
 import { fetchProfilesForExplore } from '../lib/supabaseProfiles';
 import ArtworkCard from '../components/ArtworkCard/ArtworkCard';
+import MasonryGrid from '../components/MasonryGrid/MasonryGrid';
 import './Home.css';
 import './Explore.css';
 
-const featuredEase = [0.16, 1, 0.3, 1];
-const featuredScaleEase = [0.34, 1.56, 0.64, 1];
+/** Smooth ease-out for scroll-reveal cards (single tween, no competing durations) */
+const exploreCardEase = [0.22, 1, 0.36, 1];
+
+function exploreCardTransition(index, stagger = 0.045) {
+  return {
+    type: 'tween',
+    duration: 0.58,
+    ease: exploreCardEase,
+    delay: index * stagger,
+  };
+}
 
 function artistCoverUrl(user) {
   if (user.cover_image_url) return user.cover_image_url;
@@ -158,16 +168,10 @@ export default function Explore() {
                     <motion.article
                       key={String(user.id)}
                       className="all-card"
-                      initial={{ opacity: 0, y: 100, scale: 0.9 }}
-                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                      viewport={{ once: true, margin: '-50px', amount: 0.3 }}
-                      transition={{
-                        duration: 0.7,
-                        ease: featuredEase,
-                        delay: index * 0.1,
-                        opacity: { duration: 0.4 },
-                        scale: { duration: 0.5, ease: featuredScaleEase },
-                      }}
+                      initial={{ opacity: 0, y: 28 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: '0px 0px -12% 0px', amount: 0.12 }}
+                      transition={exploreCardTransition(index, 0.06)}
                     >
                       <Link to={`/profile/${user.username}`} className="all-card-link">
                         <motion.div
@@ -204,20 +208,18 @@ export default function Explore() {
 
           {activeTab === 'artworks' && (
             filteredArtworks.length > 0 ? (
-              <div className="all-grid explore-artwork-grid">
+              <MasonryGrid
+                className="explore-artwork-grid"
+                gap="clamp(1.75rem, 3vw, 3rem)"
+                minColumnWidth={280}
+              >
                 {filteredArtworks.map((art, index) => (
                   <motion.div
                     key={`${art.userId}-${art.id}`}
-                    initial={{ opacity: 0, y: 100, scale: 0.9 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, margin: '-50px', amount: 0.3 }}
-                    transition={{
-                      duration: 0.7,
-                      ease: featuredEase,
-                      delay: index * 0.08,
-                      opacity: { duration: 0.4 },
-                      scale: { duration: 0.5, ease: featuredScaleEase },
-                    }}
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '0px 0px -12% 0px', amount: 0.12 }}
+                    transition={exploreCardTransition(index, 0.04)}
                   >
                     <ArtworkCard
                       artwork={art}
@@ -226,7 +228,7 @@ export default function Explore() {
                     />
                   </motion.div>
                 ))}
-              </div>
+              </MasonryGrid>
             ) : (
               <div className="empty-state">
                 <p className="empty-icon">🖼️</p>

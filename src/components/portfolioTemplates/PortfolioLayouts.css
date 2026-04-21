@@ -33,36 +33,7 @@
   color: #030213;
 }
 
-.portfolio-layout__minimal-lead .artwork-thumbnail {
-  height: min(52vh, 520px);
-}
-
-.portfolio-layout__minimal-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2.5rem;
-}
-
-.portfolio-layout__minimal-grid .artwork-thumbnail {
-  height: min(36vw, 280px);
-}
-
-@media (min-width: 640px) {
-  .portfolio-layout__minimal-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2.25rem 1.75rem;
-  }
-
-  .portfolio-layout__minimal-grid .artwork-thumbnail {
-    height: 220px;
-  }
-}
-
-@media (min-width: 900px) {
-  .portfolio-layout__minimal-grid .artwork-thumbnail {
-    height: 240px;
-  }
-}
+/* Minimalist grid: MasonryGrid (dynamic columns + equal gaps) */
 
 /* --- Bold: USER NAME.pdf masthead + works (letter-spaced titles) --- */
 .portfolio-bold-pdf-heading {
@@ -83,6 +54,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
+  align-items: stretch;
 }
 
 .portfolio-layout--bold .artwork-title {
@@ -118,70 +90,14 @@
   box-shadow: 10px 10px 0 rgba(3, 2, 19, 0.16);
 }
 
-.portfolio-layout__bold-hero .artwork-thumbnail {
-  height: min(58vh, 480px);
-}
-
-.portfolio-layout__bold-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
 .portfolio-layout__bold-grid .artwork-card {
   border-radius: 0;
   border: 2px solid #030213;
 }
 
-.portfolio-layout__bold-grid .artwork-thumbnail {
-  height: 160px;
-}
-
-@media (min-width: 720px) {
-  .portfolio-layout__bold-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .portfolio-layout__bold-grid .artwork-thumbnail {
-    height: 180px;
-  }
-}
-
-/* --- Artsy: 12-col mosaic with varied spans --- */
-.portfolio-layout--artsy {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 0.85rem;
-  align-items: stretch;
-}
-
-.portfolio-layout__artsy-cell {
-  grid-column: span 6;
-  min-width: 0;
-}
-
-.portfolio-layout__artsy-cell--wide {
-  grid-column: span 12;
-}
-
-@media (min-width: 640px) {
-  .portfolio-layout__artsy-cell {
-    grid-column: span 4;
-  }
-
-  .portfolio-layout__artsy-cell--wide {
-    grid-column: span 8;
-  }
-}
-
-@media (min-width: 900px) {
-  .portfolio-layout__artsy-cell {
-    grid-column: span 4;
-  }
-
-  .portfolio-layout__artsy-cell--wide {
-    grid-column: span 8;
-  }
+/* --- Artsy: MasonryGrid --- */
+.portfolio-layout--artsy-wrap {
+  width: 100%;
 }
 
 .portfolio-layout--artsy .artwork-card {
@@ -189,11 +105,11 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.portfolio-layout--artsy .portfolio-layout__artsy-cell:nth-child(odd) .artwork-card {
+.portfolio-layout--artsy .portfolio-artsy-cell--a .artwork-card {
   transform: rotate(-0.35deg);
 }
 
-.portfolio-layout--artsy .portfolio-layout__artsy-cell:nth-child(even) .artwork-card {
+.portfolio-layout--artsy .portfolio-artsy-cell--b .artwork-card {
   transform: rotate(0.35deg);
 }
 
@@ -202,20 +118,10 @@
 }
 
 .portfolio-layout__empty {
-  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
   color: rgba(0, 0, 0, 0.45);
   font-size: 0.9rem;
   margin: 0;
   padding: 1rem 0;
-}
-
-@media (max-width: 520px) {
-  .portfolio-layout__minimal-lead .artwork-thumbnail {
-    height: min(48vh, 380px);
-  }
-
-  .portfolio-layout--artsy .portfolio-layout__artsy-cell,
-  .portfolio-layout--artsy .portfolio-layout__artsy-cell--wide {
-    grid-column: span 12;
-  }
 }

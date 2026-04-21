@@ -7,7 +7,14 @@ import {
 } from './userDisplay';
 import { normalizePortfolioTemplate } from './portfolioTemplate';
 
-export async function fetchProfileByUsername(username) {
+function readFollowBatchMap(batch, id, which) {
+  const m = batch?.[which];
+  if (!m || typeof m !== 'object') return 0;
+  const v = m[id] ?? m[String(id)];
+  return typeof v === 'number' ? v : Number(v) || 0;
+}
+
+export async function fetchProfileByUsername(username, viewerId = null) {
   const u = String(username).toLowerCase().trim();
   const { data: profile, error } = await supabase
     .from('profiles')
@@ -25,10 +32,39 @@ export async function fetchProfileByUsername(username) {
 
   if (itemsError) throw itemsError;
 
-  return { profile, items: items ?? [] };
+  const { data: batchRaw, error: batchErr } = await supabase.rpc('follow_stats_batch', {
+    ids: [profile.id],
+  });
+  if (batchErr) console.warn('follow_stats_batch', batchErr);
+
+  const batch = batchRaw || { followers: {}, following: {} };
+  const fid = profile.id;
+  const followers = readFollowBatchMap(batch, fid, 'followers');
+  const followingCount = readFollowBatchMap(batch, fid, 'following');
+
+  let viewerFollows = false;
+  if (viewerId && viewerId !== profile.id) {
+    const { data: rel } = await supabase
+      .from('follows')
+      .select('follower_id')
+      .eq('follower_id', viewerId)
+      .eq('following_id', profile.id)
+      .maybeSingle();
+    viewerFollows = !!rel;
+  }
+
+  return {
+    profile,
+    items: items ?? [],
+    stats: {
+      followers,
+      following: followingCount,
+      viewerFollows,
+    },
+  };
 }
 
-export function mapProfileRowsToViewModel(profile, items) {
+export function mapProfileRowsToViewModel(profile, items, stats = {}) {
   const list = items ?? [];
   const artworks = list.map((row) => ({
     id: row.id,
@@ -62,8 +98,8 @@ export function mapProfileRowsToViewModel(profile, items) {
     avatar_url: profile.avatar_url,
     location: profile.location || '',
     website: profile.website || '',
-    followers: 0,
-    following: 0,
+    followers: stats.followers ?? 0,
+    following: stats.following ?? 0,
     artworks,
     tags,
     portfolio_template: normalizePortfolioTemplate(profile.portfolio_template),
@@ -128,10 +164,57 @@ export async function fetchProfilesForExplore(limit = 48) {
     byUser.set(row.user_id, list);
   }
 
+  const { data: batchRaw, error: batchErr } = await supabase.rpc('follow_stats_batch', {
+    ids,
+  });
+  if (batchErr) console.warn('follow_stats_batch', batchErr);
+  const batch = batchRaw || { followers: {}, following: {} };
+
   return data.map((profile) => {
     const items = (byUser.get(profile.id) ?? []).sort(
       (a, b) => a.sort_order - b.sort_order,
     );
-    return mapProfileRowsToViewModel(profile, items);
+    const fid = profile.id;
+    const stats = {
+      followers: readFollowBatchMap(batch, fid, 'followers'),
+      following: readFollowBatchMap(batch, fid, 'following'),
+    };
+    return mapProfileRowsToViewModel(profile, items, stats);
   });
+}
+
+/**
+ * Follow or unfollow a profile (current user is follower). Requires auth + applies RLS.
+ */
+export async function setFollowTarget(followingProfileId, shouldFollow) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user?.id) {
+    const err = new Error('Sign in to follow creators.');
+    err.code = 'SIGN_IN_REQUIRED';
+    throw err;
+  }
+  const followerId = session.user.id;
+  if (followerId === followingProfileId) {
+    throw new Error('Cannot follow yourself.');
+  }
+
+  if (shouldFollow) {
+    const { error } = await supabase.from('follows').insert({
+      follower_id: followerId,
+      following_id: followingProfileId,
+    });
+    if (error) {
+      if (error.code === '23505') return;
+      throw error;
+    }
+  } else {
+    const { error } = await supabase
+      .from('follows')
+      .delete()
+      .eq('follower_id', followerId)
+      .eq('following_id', followingProfileId);
+    if (error) throw error;
+  }
 }

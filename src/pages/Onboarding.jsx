@@ -8,6 +8,8 @@ import {
   normalizePortfolioTemplate,
 } from '../lib/portfolioTemplate';
 import { categories } from '../data/mockData';
+import { ONBOARDING_SAMPLE_USER } from '../data/onboardingPreviewSamples';
+import { PortfolioWorksSection } from '../components/portfolioTemplates/PortfolioLayouts';
 import './Auth.css';
 import './Onboarding.css';
 
@@ -196,8 +198,10 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="auth-page onboarding-page">
-      <div className="auth-card onboarding-card">
+    <div className="auth-page onboarding-page onboarding-page-all">
+      <div
+        className={`auth-card onboarding-card${step === 0 ? ' onboarding-card--template-step' : ''}`}
+      >
         <div className="auth-logo">
           <span className="auth-logo-icon">✦</span>
           <span>Intersect</span>
@@ -214,15 +218,31 @@ export default function Onboarding() {
             <p className="onboarding-lead">Choose a layout template. You can change this later.</p>
             <div className="template-grid">
               {TEMPLATE_OPTIONS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`template-card${template === t.id ? ' selected' : ''}`}
-                  onClick={() => setTemplate(t.id)}
-                >
-                  <span className="template-name">{t.name}</span>
-                  <span className="template-blurb">{t.blurb}</span>
-                </button>
+                <div key={t.id} className="template-option">
+                  <button
+                    type="button"
+                    className={`template-card${template === t.id ? ' selected' : ''}`}
+                    onClick={() => setTemplate(t.id)}
+                    aria-expanded={template === t.id}
+                  >
+                    <span className="template-name">{t.name}</span>
+                    <span className="template-blurb">{t.blurb}</span>
+                  </button>
+                  {template === t.id && (
+                    <div className="template-preview-panel" aria-live="polite">
+                      <p className="template-preview-label">Preview — same works, different layout</p>
+                      <div className="template-preview-frame">
+                        <PortfolioWorksSection
+                          template={t.id}
+                          user={ONBOARDING_SAMPLE_USER}
+                          username="preview"
+                          isOwner={false}
+                          previewMode
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
             <button type="button" className="auth-submit" onClick={() => setStep(1)}>

@@ -2,8 +2,16 @@
   padding-bottom: 4rem;
 }
 
+.onboarding-page-all {
+  padding-top: 8rem;
+}
+
 .onboarding-card {
   max-width: 560px;
+}
+
+.onboarding-card--template-step {
+  max-width: min(920px, calc(100vw - 2rem));
 }
 
 .onboarding-step {
@@ -23,6 +31,37 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.template-option {
+  display: flex;
+  flex-direction: column;
+}
+
+.template-preview-panel {
+  margin-top: 0.75rem;
+}
+
+.template-preview-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(3, 2, 19, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.template-preview-frame {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  padding: 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.template-preview-frame .portfolio-layout {
+  min-width: min(100%, 520px);
 }
 
 .template-card {

@@ -92,7 +92,7 @@
   font-size: 2rem;
   font-weight: 700;
   color: #fff;
-  margin-top: -50px;
+  margin-top: 1rem;
   border: 4px solid #ffffff;
   flex-shrink: 0;
 }
@@ -100,7 +100,7 @@
 .profile-meta {
   flex: 1;
   min-width: 0;
-  padding-top: 0.75rem;
+  padding-top: 2rem;
 }
 
 .profile-name-row {
@@ -145,6 +145,17 @@
   background: rgba(0, 0, 0, 0.08);
   border-color: rgba(0, 0, 0, 0.22);
   color: #030213;
+}
+
+.btn-follow:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.profile-follow-error {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #b91636;
 }
 
 a.btn-edit {

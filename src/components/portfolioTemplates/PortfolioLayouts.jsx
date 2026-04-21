@@ -1,11 +1,7 @@
 import ArtworkCard from '../ArtworkCard/ArtworkCard';
+import MasonryGrid from '../MasonryGrid/MasonryGrid';
 import { normalizePortfolioTemplate } from '../../lib/portfolioTemplate';
 import './PortfolioLayouts.css';
-
-function artsySpanClass(i) {
-  if (i % 4 === 0) return 'portfolio-layout__artsy-cell--wide';
-  return '';
-}
 
 export function PortfolioWorksSection({
   template,
@@ -14,6 +10,8 @@ export function PortfolioWorksSection({
   isOwner,
   /** (artwork) => void | Promise — e.g. owner deletes from Supabase */
   onDeleteWork,
+  /** Onboarding / demos: no profile links on cards */
+  previewMode = false,
 }) {
   const artistName = user.name;
   const artworks = user.artworks ?? [];
@@ -33,22 +31,34 @@ export function PortfolioWorksSection({
   );
 
   if (tpl === 'artsy') {
+    if (artworks.length === 0) {
+      return (
+        <div className="portfolio-layout portfolio-layout--artsy-wrap">
+          {isOwner && empty}
+        </div>
+      );
+    }
     return (
-      <div className="portfolio-layout portfolio-layout--artsy">
-        {artworks.map((art, i) => (
-          <div
-            key={art.id}
-            className={`portfolio-layout__artsy-cell ${artsySpanClass(i)}`.trim()}
-          >
+      <div className="portfolio-layout portfolio-layout--artsy-wrap">
+        <MasonryGrid
+          className="portfolio-layout--artsy"
+          gap="0.85rem"
+          minColumnWidth={220}
+          getCellClassName={(i) =>
+            i % 2 === 0 ? 'portfolio-artsy-cell--a' : 'portfolio-artsy-cell--b'
+          }
+        >
+          {artworks.map((art) => (
             <ArtworkCard
+              key={art.id}
               artwork={art}
               artistName={artistName}
               username={username}
               onDelete={del(art)}
+              hideProfileLink={previewMode}
             />
-          </div>
-        ))}
-        {isOwner && artworks.length === 0 && empty}
+          ))}
+        </MasonryGrid>
       </div>
     );
   }
@@ -80,10 +90,11 @@ export function PortfolioWorksSection({
             artistName={artistName}
             username={username}
             onDelete={del(first)}
+            hideProfileLink={previewMode}
           />
         </div>
         {rest.length > 0 && (
-          <div className="portfolio-layout__bold-grid">
+          <MasonryGrid className="portfolio-layout__bold-grid" gap="1rem" minColumnWidth={180}>
             {rest.map((art) => (
               <ArtworkCard
                 key={art.id}
@@ -91,9 +102,10 @@ export function PortfolioWorksSection({
                 artistName={artistName}
                 username={username}
                 onDelete={del(art)}
+                hideProfileLink={previewMode}
               />
             ))}
-          </div>
+          </MasonryGrid>
         )}
       </div>
     );
@@ -122,10 +134,11 @@ export function PortfolioWorksSection({
             username={username}
             minimal
             onDelete={del(lead)}
+            hideProfileLink={previewMode}
           />
         </div>
         {rest.length > 0 && (
-          <div className="portfolio-layout__minimal-grid">
+          <MasonryGrid className="portfolio-layout__minimal-grid" gap="1.75rem" minColumnWidth={260}>
             {rest.map((art) => (
               <ArtworkCard
                 key={art.id}
@@ -134,9 +147,10 @@ export function PortfolioWorksSection({
                 username={username}
                 minimal
                 onDelete={del(art)}
+                hideProfileLink={previewMode}
               />
             ))}
-          </div>
+          </MasonryGrid>
         )}
       </div>
     );
@@ -151,6 +165,7 @@ export function PortfolioWorksSection({
           artistName={artistName}
           username={username}
           onDelete={del(art)}
+          hideProfileLink={previewMode}
         />
       ))}
       {isOwner && artworks.length === 0 && empty}

@@ -11,6 +11,8 @@ export default function ArtworkCard({
   minimal = false,
   /** Owner: optional callback to remove this work from portfolio */
   onDelete,
+  /** Hide @username profile link (e.g. template previews) */
+  hideProfileLink = false,
 }) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(artwork.likes || 0);
@@ -34,7 +36,7 @@ export default function ArtworkCard({
       className={`artwork-card${mini ? ' artwork-card--mini' : ''}${minimal ? ' artwork-card--minimal' : ''}`}
     >
       <div
-        className="artwork-thumbnail"
+        className={`artwork-thumbnail${!hasMedia ? ' artwork-thumbnail--empty' : ''}`}
         style={{ background: artwork.color }}
         aria-label={artwork.title}
       >
@@ -82,7 +84,7 @@ export default function ArtworkCard({
           {minimal && artwork.category && (
             <p className="artwork-minimal-category">{artwork.category}</p>
           )}
-          {!minimal && artistName && (
+          {!minimal && artistName && !hideProfileLink && (
             <Link to={`/profile/${username}`} className="artwork-artist" onClick={(e) => e.stopPropagation()}>
               @{username}
             </Link>
